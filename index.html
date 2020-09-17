@@ -142,7 +142,7 @@
 
       await pyodide.runPython('micropip.install("setuptools")')
       await pyodide.runPython('micropip.install("entrypoints")')
-      await pyodide.runPython('micropip.install("wemake-python-styleguide")')
+      await pyodide.runPython('micropip.install("wemake-python-styleguide==0.14.1")')
       result = await pyodide.runPython('micropip.install("flake8-builtins")')
       print_out(result)
 
