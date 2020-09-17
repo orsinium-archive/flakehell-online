@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>WPS Console</title>
+  <link rel="shortcut icon" href="favicon.ico">
+
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"
+    integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous">
+  </script>
+  <script src="https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js" crossorigin="anonymous">
+  </script>
+</head>
+
+<body>
+  <h1>WPS</h1>
+  <div class="container-fluid">
+    <div class="container">
+      <div class="row">
+
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">console</h5>
+              <div class="card-text" id="py-output"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">code</h5>
+              <p class="card-text" id="py-code" contenteditable="true">a=1+2</p>
+              <button href="#" class="btn btn-outline-primary" disabled onclick="lint()" id="py-lint">
+                run flake8
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    el_out = document.getElementById('py-output')
+    el_code = document.getElementById('py-code')
+    el_lint = document.getElementById('py-lint')
+
+    function add_output(text, cls) {
+      if (text === undefined) {
+        return
+      }
+      el = document.createElement('div')
+      el.setAttribute('class', 'alert alert-' + cls)
+      el.innerText = text
+      el_out.appendChild(el)
+    }
+
+    function print_in(text) {
+      add_output(text, 'secondary')
+    }
+
+    function print_out(text) {
+      add_output(text, 'success')
+    }
+
+    function print_tb(text) {
+      add_output(text, 'danger')
+    }
+
+    function python_run(commands) {
+      try {
+        commands.forEach(cmd => {
+          print_in(cmd)
+          print_out(pyodide.runPython(cmd))
+        });
+      } catch (error) {
+        print_tb(error)
+        return false
+      }
+      return true
+    }
+
+    async function python_install() {
+      print_in('Installing micropip')
+      result = await pyodide.loadPackage('micropip')
+      print_out(result)
+
+      ok = python_run(['import micropip'])
+      if (!ok) {
+        return
+      }
+
+      print_in('Installing flake8')
+      result = await pyodide.runPython('micropip.install("flake8")')
+      print_out(result)
+    }
+
+    print_in('Loading python...')
+    languagePluginLoader.then(function () {
+      print_out('Interpreter is ready')
+      python_run(['import sys', 'sys.version'])
+      promise = python_install()
+      promise.then(() => {
+        el_lint.disabled = false
+      })
+    });
+
+    function lint() {
+      pyodide.globals.text = el_code.innerText
+      ok = python_run([
+        'from pathlib import Path',
+        'from textwrap import dedent',
+        'path = Path("code.py")',
+        'path.write_text(dedent(text))',
+        'text',
+      ])
+      if (!ok) {
+        return
+      }
+
+      python_run([
+        'from flake8.main.application import Application',
+        'from flake8.formatting.default import Default',
+        `
+          class Formatter(Default):
+            def after_init(self):
+              self._out = []
+              return super().after_init()
+
+            def _write(self, output):
+              self._out.append(output)
+
+          class App(Application):
+            def make_formatter(self, formatter_class=None):
+              self.formatter = Formatter(self.options)
+        `,
+        'app = App()',
+        `
+          code = 0
+          try:
+            app.run(["code.py"])
+            app.exit()
+          except SystemExit as err:
+            code = int(err.args[0])
+        `,
+        'code',
+        '"\\n".join(app.formatter._out)',
+      ])
+    }
+
+  </script>
+</body>
+
+</html>
