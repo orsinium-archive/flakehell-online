@@ -48,8 +48,13 @@
               <button type="submit" class="btn btn-primary col-md-12">install</button>
             </form>
 
-            <form class="col-md-12" onsubmit="el_out.innerText = ''">
-              <button type="submit" class="btn btn-primary col-md-12">clear</button>
+            <form class="col-md-12" onsubmit="python_input_skip()">
+              <input type="text" class="form-control" id="py-input-skip" />
+              <button type="submit" class="btn btn-primary col-md-12">skip</button>
+            </form>
+
+            <form class="col-md-12" onsubmit="false">
+              <button type="submit" class="btn btn-primary col-md-12" onclick="el_out.innerText = ''">clear</button>
             </form>
 
           </div>
@@ -107,6 +112,13 @@
       return true
     }
 
+    function python_skip(pkg) {
+      python_run([
+        'name, version = "' + pkg + '".split("==")',
+        'micropip.PACKAGE_MANAGER.installed_packages[name] = version',
+      ])
+    }
+
     async function python_install() {
       print_in('Installing micropip')
       result = await pyodide.loadPackage('micropip')
@@ -118,8 +130,31 @@
       }
 
       print_in('Installing flake8')
-      result = await pyodide.runPython('micropip.install("flake8")')
+      result = await pyodide.runPython('micropip.install("flake8==3.7.9")')
       print_out(result)
+
+      python_skip('flake8-quotes==2.1.2')
+      python_skip('flake8-bugbear==19.3')
+      python_skip('flake8-rst-docstrings==0.0.12')
+      python_skip('flake8-eradicate==0.3.0')
+      python_skip('flake8-isort==3.0.1')
+      python_skip('flake8-bandit==2.1.1')
+
+      await pyodide.runPython('micropip.install("setuptools")')
+      await pyodide.runPython('micropip.install("entrypoints")')
+      await pyodide.runPython('micropip.install("wemake-python-styleguide")')
+      result = await pyodide.runPython('micropip.install("flake8-builtins")')
+      print_out(result)
+
+      python_run([
+        'import sys',
+        `
+          class Mock:
+            def get_docstring_tokens(*args):
+              return []
+        `,
+        'sys.modules["flake8_quotes.docstring_detection"] = Mock()',
+      ])
     }
 
     print_in('Loading python...')
@@ -129,6 +164,7 @@
       promise = python_install()
       promise.then(() => {
         el_lint.disabled = false
+        el_out.innerText = ''
       })
     });
 
@@ -172,6 +208,13 @@
           except SystemExit as err:
             code = int(err.args[0])
         `,
+      ])
+      if (!ok) {
+        return
+      }
+
+      el_out.innerText = ''
+      python_run([
         'code',
         '"\\n".join(app.formatter._out)',
       ])
@@ -181,6 +224,7 @@
 
     function python_input_run() {
       python_run([el_input_run.value])
+      return false
     }
 
     el_input_install = document.getElementById('py-input-install')
@@ -190,6 +234,15 @@
       print_in('Installing ' + pkg)
       promise = pyodide.runPython('micropip.install("' + pkg + '")')
       promise.then(print_out, print_tb)
+      return false
+    }
+
+    el_input_skip = document.getElementById('py-input-skip')
+
+    function python_input_skip() {
+      python_skip(el_input_skip.value)
+      return false
+      // no wheels: eradicate
     }
 
   </script>
