@@ -18,28 +18,48 @@
 </head>
 
 <body>
-  <h1>WPS</h1>
+  <h1 class="text-center">WPS</h1>
   <div class="container-fluid">
     <div class="container">
       <div class="row">
 
         <div class="col-md-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">console</h5>
-              <div class="card-text" id="py-output"></div>
+          <div class="row">
+
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">code</h5>
+                  <p class="card-text" id="py-code" contenteditable="true">a=1+2</p>
+                  <button href="#" class="btn btn-outline-primary" disabled onclick="lint()" id="py-lint">
+                    run flake8
+                  </button>
+                </div>
+              </div>
             </div>
+
+            <form class="col-md-12" onsubmit="python_input_run()">
+              <textarea class="form-control" id="py-input-run"></textarea>
+              <button type="submit" class="btn btn-primary col-md-12">run</button>
+            </form>
+
+            <form class="col-md-12" onsubmit="python_input_install()">
+              <input type="text" class="form-control" id="py-input-install" />
+              <button type="submit" class="btn btn-primary col-md-12">install</button>
+            </form>
+
+            <form class="col-md-12" onsubmit="el_out.innerText = ''">
+              <button type="submit" class="btn btn-primary col-md-12">clear</button>
+            </form>
+
           </div>
         </div>
 
         <div class="col-md-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">code</h5>
-              <p class="card-text" id="py-code" contenteditable="true">a=1+2</p>
-              <button href="#" class="btn btn-outline-primary" disabled onclick="lint()" id="py-lint">
-                run flake8
-              </button>
+              <h5 class="card-title">console</h5>
+              <div class="card-text" id="py-output"></div>
             </div>
           </div>
         </div>
@@ -51,7 +71,6 @@
   <script type="text/javascript">
     el_out = document.getElementById('py-output')
     el_code = document.getElementById('py-code')
-    el_lint = document.getElementById('py-lint')
 
     function add_output(text, cls) {
       if (text === undefined) {
@@ -113,6 +132,8 @@
       })
     });
 
+    el_lint = document.getElementById('py-lint')
+
     function lint() {
       pyodide.globals.text = el_code.innerText
       ok = python_run([
@@ -154,6 +175,21 @@
         'code',
         '"\\n".join(app.formatter._out)',
       ])
+    }
+
+    el_input_run = document.getElementById('py-input-run')
+
+    function python_input_run() {
+      python_run([el_input_run.value])
+    }
+
+    el_input_install = document.getElementById('py-input-install')
+
+    function python_input_install() {
+      pkg = el_input_install.value
+      print_in('Installing ' + pkg)
+      promise = pyodide.runPython('micropip.install("' + pkg + '")')
+      promise.then(print_out, print_tb)
     }
 
   </script>
