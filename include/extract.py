@@ -7,5 +7,3 @@ stream = BytesIO(b64decode(archive))  # noqa: F821
 with ZipFile(stream) as zip:
     zip.extractall('.')
 del archive  # noqa: F821
-
-list(Path().iterdir())

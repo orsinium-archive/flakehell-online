@@ -14,7 +14,7 @@ type Scripts struct {
 	sfs http.FileSystem
 }
 
-func (sc *Scripts) read(fname string) string {
+func (sc *Scripts) Read(fname string) []byte {
 	file, err := sc.sfs.Open(fname)
 	if err != nil {
 		log.Fatal(err)
@@ -24,15 +24,15 @@ func (sc *Scripts) read(fname string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return string(content)
+	return content
 }
 
 func (sc *Scripts) ReadFlakeHell() string {
-	return sc.read("/flakehell.py")
+	return string(sc.Read("/flakehell.py"))
 }
 
 func (sc *Scripts) ReadExtract() string {
-	return sc.read("/extract.py")
+	return string(sc.Read("/extract.py"))
 }
 
 func NewScripts() Scripts {

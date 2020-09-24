@@ -3,28 +3,9 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
 
 	"github.com/life4/gweb/web"
 )
-
-const Flake8QuotesURL = "https://github.com/zheller/flake8-quotes/archive/master.zip"
-
-func Download(url string) (string, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	encoded := base64.StdEncoding.EncodeToString(content)
-	return encoded, nil
-}
 
 func main() {
 	window := web.GetWindow()
@@ -67,12 +48,12 @@ func main() {
 	py.Install("wemake-python-styleguide==0.14.1")
 
 	// install non-wheel dependencies
-	archive, err := Download(Flake8QuotesURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	py.Set("archive", archive)
+	py.RunAndPrint("import sys")
+	py.RunAndPrint("sys.path.insert(0, '.')")
 	scripts := NewScripts()
+	archive := scripts.Read("/flake8_quotes.zip")
+	encoded := base64.StdEncoding.EncodeToString(archive)
+	py.Set("archive", encoded)
 	script := scripts.ReadExtract()
 	py.RunAndPrint(script)
 
