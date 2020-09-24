@@ -31,6 +31,10 @@ func (sc *Scripts) ReadFlakeHell() string {
 	return sc.read("/flakehell.py")
 }
 
+func (sc *Scripts) ReadExtract() string {
+	return sc.read("/extract.py")
+}
+
 func NewScripts() Scripts {
 	sfs, err := fs.New()
 	if err != nil {

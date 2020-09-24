@@ -1,114 +1,29 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 
 	"github.com/life4/gweb/web"
 )
 
-type Python struct {
-	pyodide web.Value
-	doc     web.Document
-	output  web.HTMLElement
-}
+const Flake8QuotesURL = "https://github.com/zheller/flake8-quotes/archive/master.zip"
 
-func (py Python) print(text string, cls string) {
-	el := py.doc.CreateElement("div")
-	el.Attribute("class").Set("alert alert-" + cls)
-	el.SetText(text)
-	py.output.Node().AppendChild(el.Node())
-}
-
-func (py Python) PrintIn(text string) {
-	py.print(text, "secondary")
-}
-
-func (py Python) PrintOut(text string) {
-	py.print(text, "success")
-}
-
-func (py Python) PrintErr(text string) {
-	py.print(text, "danger")
-}
-
-func (py Python) Run(cmd string) string {
-	return py.pyodide.Call("runPython", cmd).String()
-}
-
-func (py Python) RunAndPrint(cmd string) {
-	py.PrintIn(cmd)
-	result := py.Run(cmd)
-	py.PrintOut(result)
-}
-
-func (py Python) Install(pkg string) bool {
-	cmd := fmt.Sprintf("micropip.install('%s')", pkg)
-	py.PrintIn(cmd)
-	_, fail := py.pyodide.Call("runPython", cmd).Promise().Get()
-	if fail.Truthy() {
-		py.PrintErr(fail.String())
-		return false
+func Download(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
 	}
-	py.PrintOut("True")
-	return true
-}
-
-func (py Python) Set(name, text string) {
-	py.pyodide.Get("globals").Set(name, text)
-}
-
-func (py Python) Clear() {
-	py.output.SetText("")
-}
-
-func (py Python) InitMicroPip() bool {
-	py.PrintIn("import micropip")
-	_, fail := py.pyodide.Call("loadPackage", "micropip").Promise().Get()
-	if fail.Truthy() {
-		py.PrintErr(fail.String())
-		return false
+	defer resp.Body.Close()
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
 	}
-	py.Run("import micropip")
-	py.PrintOut("True")
-	return true
-}
-
-type FlakeHell struct {
-	script string
-	input  web.HTMLElement
-	btn    web.HTMLElement
-	py     *Python
-}
-
-func NewFlakeHell(doc web.Document, py *Python) FlakeHell {
-	scripts := NewScripts()
-	script := scripts.ReadFlakeHell()
-	return FlakeHell{
-		script: script,
-		input:  doc.Element("py-code"),
-		btn:    doc.Element("py-lint"),
-		py:     py,
-	}
-
-}
-
-func (fh *FlakeHell) Register() {
-	fh.btn.Set("disabled", false)
-	fh.btn.EventTarget().Listen(web.EventTypeClick, func(event web.Event) {
-		fh.btn.Set("disabled", true)
-		fh.Run()
-		fh.btn.Set("disabled", false)
-	})
-}
-
-func (fh *FlakeHell) Run() {
-	fh.py.Clear()
-	fh.py.Set("text", fh.input.Text())
-	fh.py.RunAndPrint(fh.script)
-
-	fh.py.Clear()
-	fh.py.RunAndPrint("code")
-	fh.py.RunAndPrint("'\\n'.join(app.formatter._out)")
+	encoded := base64.StdEncoding.EncodeToString(content)
+	return encoded, nil
 }
 
 func main() {
@@ -149,6 +64,17 @@ func main() {
 	py.Install("setuptools")
 	py.Install("entrypoints")
 	py.Install("flake8-builtins==1.5.3")
+	py.Install("wemake-python-styleguide==0.14.1")
+
+	// install non-wheel dependencies
+	archive, err := Download(Flake8QuotesURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	py.Set("archive", archive)
+	scripts := NewScripts()
+	script := scripts.ReadExtract()
+	py.RunAndPrint(script)
 
 	flakehell := NewFlakeHell(doc, &py)
 	flakehell.Run()
