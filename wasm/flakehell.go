@@ -31,7 +31,7 @@ func (fh *FlakeHell) Register() {
 }
 
 func (fh *FlakeHell) Run() {
-	fh.py.Clear()
+	// fh.py.Clear()
 	fh.py.Set("text", fh.input.Text())
 	fh.py.RunAndPrint(fh.script)
 

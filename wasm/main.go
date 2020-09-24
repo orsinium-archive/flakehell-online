@@ -33,6 +33,10 @@ func main() {
 		"flake8-eradicate":      "0.3.0",
 		"flake8-isort":          "3.0.1",
 		"flake8-bandit":         "2.1.1",
+		"lazy-object-proxy":     "1.4.0",
+		"wrapt":                 "1.11.0",
+		"typed-ast":             "1.4.1",
+		"six":                   "1.15.0",
 	}
 	for pname, pversion := range skip {
 		cmd := "micropip.PACKAGE_MANAGER.installed_packages['%s'] = '%s'"
@@ -41,21 +45,33 @@ func main() {
 
 	// install dependencies
 	py.Clear()
-	py.Install("flake8==3.7.9")
+	py.Install("flake8==3.8.0")
 	py.Install("setuptools")
 	py.Install("entrypoints")
 	py.Install("flake8-builtins==1.5.3")
 	py.Install("wemake-python-styleguide==0.14.1")
+	py.Install("astroid")
+	py.Install("deal==4.0.1")
+	py.Install("pylint==2.6.0")
+	py.Install("flakehell==0.6.1")
 
 	// install non-wheel dependencies
 	py.RunAndPrint("import sys")
 	py.RunAndPrint("sys.path.insert(0, '.')")
 	scripts := NewScripts()
-	archive := scripts.Read("/flake8_quotes.zip")
-	encoded := base64.StdEncoding.EncodeToString(archive)
-	py.Set("archive", encoded)
-	script := scripts.ReadExtract()
-	py.RunAndPrint(script)
+	unzip := []string{
+		"/flake8_quotes.zip",
+		"/lazy_object_proxy.zip",
+		"/wrapt.zip",
+		"/typed_ast.zip",
+	}
+	for _, name := range unzip {
+		archive := scripts.Read(name)
+		encoded := base64.StdEncoding.EncodeToString(archive)
+		py.Set("archive", encoded)
+		script := scripts.ReadExtract()
+		py.RunAndPrint(script)
+	}
 
 	flakehell := NewFlakeHell(doc, &py)
 	flakehell.Run()
