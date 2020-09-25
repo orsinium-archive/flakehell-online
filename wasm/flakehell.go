@@ -63,6 +63,11 @@ func (fh *FlakeHell) Run() {
 	result := fh.py.Run(cmd)
 	fh.py.PrintOut(result)
 
+	if result == "" {
+		return
+	}
+
+	// read violations
 	violations := make([]Violation, 0)
 	for _, line := range strings.Split(result, "\n") {
 		v := Violation{}
@@ -74,11 +79,22 @@ func (fh *FlakeHell) Run() {
 		violations = append(violations, v)
 	}
 
+	// read links to plugins
+	fh.py.Run("from flakehell._constants import KNOWN_PLUGINS")
+	fh.py.Run("import json")
+	result = fh.py.Run("json.dumps(dict(KNOWN_PLUGINS.items()))")
+	plugins := make(map[string]string)
+	err := json.Unmarshal([]byte(result), &plugins)
+	if err != nil {
+		fh.py.PrintErr(err.Error())
+		return
+	}
+
 	fh.py.Clear()
-	fh.table(violations)
+	fh.table(violations, plugins)
 }
 
-func (fh *FlakeHell) table(violations []Violation) {
+func (fh *FlakeHell) table(violations []Violation, plugins map[string]string) {
 	table := fh.doc.CreateElement("table")
 	table.Attribute("class").Set("table table-sm")
 
@@ -100,11 +116,21 @@ func (fh *FlakeHell) table(violations []Violation) {
 	for _, vl := range violations {
 		tr := fh.doc.CreateElement("tr")
 
-		td := fh.doc.CreateElement("td")
-		td.SetText(vl.Plugin)
-		tr.Node().AppendChild(td.Node())
+		url, ok := plugins[vl.Plugin]
+		if ok {
+			td := fh.doc.CreateElement("td")
+			a := fh.doc.CreateElement("a")
+			a.Attribute("href").Set(url)
+			a.SetText(vl.Plugin)
+			td.Node().AppendChild(a.Node())
+			tr.Node().AppendChild(td.Node())
+		} else {
+			td := fh.doc.CreateElement("td")
+			td.SetText(vl.Plugin)
+			tr.Node().AppendChild(td.Node())
+		}
 
-		td = fh.doc.CreateElement("td")
+		td := fh.doc.CreateElement("td")
 		td.SetText(vl.Code)
 		tr.Node().AppendChild(td.Node())
 
