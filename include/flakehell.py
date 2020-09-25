@@ -4,6 +4,10 @@ from textwrap import dedent
 from flakehell._patched import FlakeHellApplication
 from flakehell.formatters import JSONFormatter
 
+# save flakehell config
+path = Path("pyproject.toml").write_text(config)  # noqa: F821
+
+# save source code
 path = Path("code.py")
 path.write_text(dedent(text))  # noqa: F821
 

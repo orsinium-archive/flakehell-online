@@ -12,6 +12,7 @@ func main() {
 	doc := window.Document()
 	doc.SetTitle("FlakeHell online")
 
+	// init code editor
 	input := doc.Element("py-code")
 	scripts := NewScripts()
 	ex := scripts.ReadExample()
@@ -22,14 +23,17 @@ func main() {
 			"lineNumbers": true,
 		})
 
+	config := doc.Element("py-config")
+	config.SetText(scripts.ReadConfig())
+
 	// load python
 	py := Python{doc: doc, output: doc.Element("py-output")}
 	py.PrintIn("Load Python")
 	window.Get("languagePluginLoader").Promise().Get()
 	py.PrintOut("Python is ready")
 	py.pyodide = window.Get("pyodide")
-
 	py.RunAndPrint("'Hello world!'")
+
 	ok := py.InitMicroPip()
 	if !ok {
 		return

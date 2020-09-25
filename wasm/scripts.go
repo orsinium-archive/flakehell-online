@@ -27,6 +27,10 @@ func (sc *Scripts) Read(fname string) []byte {
 	return content
 }
 
+func (sc *Scripts) ReadConfig() string {
+	return string(sc.Read("/config.toml"))
+}
+
 func (sc *Scripts) ReadFlakeHell() string {
 	return string(sc.Read("/flakehell.py"))
 }

@@ -12,6 +12,7 @@ type FlakeHell struct {
 	script string
 	input  web.HTMLElement
 	btn    web.HTMLElement
+	conf   web.HTMLElement
 	doc    web.Document
 	py     *Python
 }
@@ -32,6 +33,7 @@ func NewFlakeHell(doc web.Document, py *Python) FlakeHell {
 		script: script,
 		input:  doc.Element("py-code"),
 		btn:    doc.Element("py-lint"),
+		conf:   doc.Element("py-config"),
 		doc:    doc,
 		py:     py,
 	}
@@ -48,8 +50,9 @@ func (fh *FlakeHell) Register() {
 }
 
 func (fh *FlakeHell) Run() {
-	// fh.py.Clear()
+	fh.py.Clear()
 	fh.py.Set("text", fh.input.Text())
+	fh.py.Set("config", fh.conf.Text())
 	fh.py.RunAndPrint(fh.script)
 
 	fh.py.Clear()

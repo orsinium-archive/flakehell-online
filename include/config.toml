@@ -1,0 +1,6 @@
+[tool.flakehell]
+max_line_length = 90
+show_source = false
+
+[tool.flakehell.plugins]
+"*" = ["+*"]

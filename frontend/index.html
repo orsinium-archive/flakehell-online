@@ -37,14 +37,23 @@
     <div class="container">
 
       <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">code</h5>
+              <h5 class="card-title">code.py</h5>
               <textarea class="card-text" id="py-code" contenteditable="true">a=1+2</textarea>
               <button href="#" class="btn btn-outline-primary" disabled onclick="lint()" id="py-lint">
                 run flake8
               </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">pyproject.toml</h5>
+              <pre class="card-text" id="py-config" contenteditable="true">Loading...</pre>
             </div>
           </div>
         </div>
