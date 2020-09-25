@@ -22,46 +22,23 @@
   <h1 class="text-center">FlakeHell</h1>
   <div class="container-fluid">
     <div class="container">
+
       <div class="row">
-
-        <div class="col-md-6">
-          <div class="row">
-
-            <div class="col-md-12">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">code</h5>
-                  <p class="card-text" id="py-code" contenteditable="true">a=1+2</p>
-                  <button href="#" class="btn btn-outline-primary" disabled onclick="lint()" id="py-lint">
-                    run flake8
-                  </button>
-                </div>
-              </div>
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">code</h5>
+              <pre class="card-text" id="py-code" contenteditable="true">a=1+2</pre>
+              <button href="#" class="btn btn-outline-primary" disabled onclick="lint()" id="py-lint">
+                run flake8
+              </button>
             </div>
-
-            <form class="col-md-12" onsubmit="python_input_run()">
-              <textarea class="form-control" id="py-input-run"></textarea>
-              <button type="submit" class="btn btn-primary col-md-12">run</button>
-            </form>
-
-            <form class="col-md-12" onsubmit="python_input_install()">
-              <input type="text" class="form-control" id="py-input-install" />
-              <button type="submit" class="btn btn-primary col-md-12">install</button>
-            </form>
-
-            <form class="col-md-12" onsubmit="python_input_skip()">
-              <input type="text" class="form-control" id="py-input-skip" />
-              <button type="submit" class="btn btn-primary col-md-12">skip</button>
-            </form>
-
-            <form class="col-md-12" onsubmit="false">
-              <button type="submit" class="btn btn-primary col-md-12" onclick="el_out.innerText = ''">clear</button>
-            </form>
-
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6">
+      <div class="row">
+        <div class="col-md-12">
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">console</h5>
@@ -69,8 +46,8 @@
             </div>
           </div>
         </div>
-
       </div>
+
     </div>
   </div>
 

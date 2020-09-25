@@ -31,6 +31,10 @@ func (sc *Scripts) ReadFlakeHell() string {
 	return string(sc.Read("/flakehell.py"))
 }
 
+func (sc *Scripts) ReadExample() string {
+	return string(sc.Read("/example.py"))
+}
+
 func (sc *Scripts) ReadExtract() string {
 	return string(sc.Read("/extract.py"))
 }

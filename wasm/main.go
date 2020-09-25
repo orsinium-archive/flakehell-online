@@ -12,6 +12,10 @@ func main() {
 	doc := window.Document()
 	doc.SetTitle("FlakeHell online")
 
+	scripts := NewScripts()
+	ex := scripts.ReadExample()
+	doc.Element("py-code").SetText(ex)
+
 	// load python
 	py := Python{doc: doc, output: doc.Element("py-output")}
 	py.PrintIn("Load Python")
@@ -58,7 +62,6 @@ func main() {
 	// install non-wheel dependencies
 	py.RunAndPrint("import sys")
 	py.RunAndPrint("sys.path.insert(0, '.')")
-	scripts := NewScripts()
 	unzip := []string{
 		"/flake8_quotes.zip",
 		"/lazy_object_proxy.zip",
