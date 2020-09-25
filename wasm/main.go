@@ -86,7 +86,7 @@ func main() {
 		py.RunAndPrint(script)
 	}
 
-	flakehell := NewFlakeHell(doc, &py)
+	flakehell := NewFlakeHell(window, doc, &py)
 	flakehell.Run()
 	flakehell.Register()
 

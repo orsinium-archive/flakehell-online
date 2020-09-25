@@ -14,6 +14,7 @@ type FlakeHell struct {
 	btn    web.HTMLElement
 	conf   web.HTMLElement
 	doc    web.Document
+	win    web.Window
 	py     *Python
 }
 
@@ -26,7 +27,7 @@ type Violation struct {
 	Plugin      string
 }
 
-func NewFlakeHell(doc web.Document, py *Python) FlakeHell {
+func NewFlakeHell(win web.Window, doc web.Document, py *Python) FlakeHell {
 	scripts := NewScripts()
 	script := scripts.ReadFlakeHell()
 	return FlakeHell{
@@ -35,6 +36,7 @@ func NewFlakeHell(doc web.Document, py *Python) FlakeHell {
 		btn:    doc.Element("py-lint"),
 		conf:   doc.Element("py-config"),
 		doc:    doc,
+		win:    win,
 		py:     py,
 	}
 
@@ -143,11 +145,16 @@ func (fh *FlakeHell) table(violations []Violation, plugins map[string]string) {
 		tr.Node().AppendChild(td.Node())
 
 		td = fh.doc.CreateElement("td")
-		td.SetText(vl.Context)
+		code := fh.doc.CreateElement("code")
+		code.Attribute("class").Set("python")
+		code.SetText(vl.Context)
+		td.Node().AppendChild(code.Node())
 		tr.Node().AppendChild(td.Node())
 
 		tbody.Node().AppendChild(tr.Node())
 	}
 
 	fh.py.output.Node().AppendChild(table.Node())
+
+	fh.win.Call("highlight")
 }
