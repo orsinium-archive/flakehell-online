@@ -17,7 +17,7 @@ func main() {
 	scripts := NewScripts()
 	ex := scripts.ReadExample()
 	input.SetInnerHTML(ex)
-	window.Get("CodeMirror").Call("fromTextArea",
+	editor := window.Get("CodeMirror").Call("fromTextArea",
 		input,
 		map[string]interface{}{
 			"lineNumbers": true,
@@ -86,7 +86,7 @@ func main() {
 		py.RunAndPrint(script)
 	}
 
-	flakehell := NewFlakeHell(window, doc, &py)
+	flakehell := NewFlakeHell(window, doc, editor, &py)
 	flakehell.Run()
 	flakehell.Register()
 

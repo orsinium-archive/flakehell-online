@@ -1,6 +1,7 @@
 from pathlib import Path
 from textwrap import dedent
 
+from astroid import MANAGER
 from flakehell._patched import FlakeHellApplication
 from flakehell.formatters import JSONFormatter
 
@@ -10,6 +11,10 @@ path = Path("pyproject.toml").write_text(config)  # noqa: F821
 # save source code
 path = Path("code.py")
 path.write_text(dedent(text))  # noqa: F821
+
+
+# clear astroid (pylint) cache
+MANAGER.astroid_cache.clear()
 
 
 class Formatter(JSONFormatter):

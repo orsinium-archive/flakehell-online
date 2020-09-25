@@ -4,17 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"syscall/js"
 
 	"github.com/life4/gweb/web"
 )
 
 type FlakeHell struct {
 	script string
-	input  web.HTMLElement
 	btn    web.HTMLElement
 	conf   web.HTMLElement
 	doc    web.Document
 	win    web.Window
+	editor web.Value
 	py     *Python
 }
 
@@ -27,33 +28,38 @@ type Violation struct {
 	Plugin      string
 }
 
-func NewFlakeHell(win web.Window, doc web.Document, py *Python) FlakeHell {
+func NewFlakeHell(win web.Window, doc web.Document, editor web.Value, py *Python) FlakeHell {
 	scripts := NewScripts()
 	script := scripts.ReadFlakeHell()
 	return FlakeHell{
 		script: script,
-		input:  doc.Element("py-code"),
 		btn:    doc.Element("py-lint"),
 		conf:   doc.Element("py-config"),
 		doc:    doc,
 		win:    win,
+		editor: editor,
 		py:     py,
 	}
 
 }
 
 func (fh *FlakeHell) Register() {
+	fh.win.Console().Log("", "reg")
 	fh.btn.Set("disabled", false)
-	fh.btn.EventTarget().Listen(web.EventTypeClick, func(event web.Event) {
+
+	wrapped := func(this js.Value, args []js.Value) interface{} {
 		fh.btn.Set("disabled", true)
+		fh.win.Console().Log("", "oh hi")
 		fh.Run()
-		fh.btn.Set("disabled", false)
-	})
+		fh.Register()
+		return true
+	}
+	fh.btn.Call("addEventListener", "click", js.FuncOf(wrapped))
 }
 
 func (fh *FlakeHell) Run() {
 	fh.py.Clear()
-	fh.py.Set("text", fh.input.Text())
+	fh.py.Set("text", fh.editor.Call("getValue").String())
 	fh.py.Set("config", fh.conf.Text())
 	fh.py.RunAndPrint(fh.script)
 
