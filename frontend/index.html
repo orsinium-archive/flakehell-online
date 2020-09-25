@@ -16,6 +16,19 @@
   <script src="https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js" crossorigin="anonymous">
   </script>
   <script src="./script.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.js"
+    integrity="sha512-WWC1A/JchDFZ2ZGaNyMC7CmPFXGLI/6Ih7WN6YG0DX1NGMkW5lqCVFxCmEx3e56Z7iqdQGpO0f+m2t9CJhdb2Q=="
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.css"
+    integrity="sha512-xIf9AdJauwKIVtrVRZ0i4nHP61Ogx9fSRAkCLecmE2dL/U8ioWpDvFCAy4dcfecN72HHB9+7FfQj3aiO68aaaw=="
+    crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/mode/python/python.min.js"
+    integrity="sha512-DS+asaww1mE0V/N6YGVgoNIRj+yXB9hAV68vM6rVeWs0G+OyMd24LKrnS4Z+g26rgghU7qvGeEnRVUArV7nVog=="
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/theme/monokai.min.css"
+    integrity="sha512-R6PH4vSzF2Yxjdvb2p2FA06yWul+U0PDDav4b/od/oXf9Iw37zl10plvwOXelrjV2Ai7Eo3vyHeyFUjhXdBCVQ=="
+    crossorigin="anonymous" />
 </head>
 
 <body>
@@ -28,7 +41,7 @@
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">code</h5>
-              <pre class="card-text" id="py-code" contenteditable="true">a=1+2</pre>
+              <textarea class="card-text" id="py-code" contenteditable="true">a=1+2</textarea>
               <button href="#" class="btn btn-outline-primary" disabled onclick="lint()" id="py-lint">
                 run flake8
               </button>

@@ -12,9 +12,15 @@ func main() {
 	doc := window.Document()
 	doc.SetTitle("FlakeHell online")
 
+	input := doc.Element("py-code")
 	scripts := NewScripts()
 	ex := scripts.ReadExample()
-	doc.Element("py-code").SetText(ex)
+	input.SetInnerHTML(ex)
+	window.Get("CodeMirror").Call("fromTextArea",
+		input,
+		map[string]interface{}{
+			"lineNumbers": true,
+		})
 
 	// load python
 	py := Python{doc: doc, output: doc.Element("py-output")}
