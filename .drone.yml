@@ -15,7 +15,8 @@ steps:
     commands:
       # generate missed static package
       - go get github.com/rakyll/statik
-      - statik -src=./include/ -dest=./wasm/
+      - export GOPATH=$(go env GOPATH)
+      - $GOPATH/bin/statik -src=./include/ -dest=./wasm/
       # run the linter
       - golangci-lint run ./wasm/
       - golangci-lint run ./server/
