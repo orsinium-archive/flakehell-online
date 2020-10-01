@@ -12,11 +12,11 @@ steps:
     environment:
       GOOS: js
       GOARCH: wasm
+      GOBIN: /usr/bin/
     commands:
       # generate missed static package
       - go install github.com/rakyll/statik
-      - ls /go/bin/
-      - /go/bin/statik -src=./include/ -dest=./wasm/
+      - statik -src=./include/ -dest=./wasm/
       # run the linter
       - golangci-lint run ./wasm/
       - golangci-lint run ./server/
