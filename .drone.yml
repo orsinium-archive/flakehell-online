@@ -15,7 +15,8 @@ steps:
     commands:
       # generate missed static package
       - go install github.com/rakyll/statik
-      - statik -src=./include/ -dest=./wasm/
+      - ls /go/bin/
+      - /go/bin/statik -src=./include/ -dest=./wasm/
       # run the linter
       - golangci-lint run ./wasm/
       - golangci-lint run ./server/
