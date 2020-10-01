@@ -5,19 +5,22 @@ trigger:
   branch: master
 
 steps:
+  - name: statik
+    image: golang:latest
+    depends_on:
+      - clone
+    commands:
+      - go install github.com/rakyll/statik
+      - statik -src=./include/ -dest=./wasm/
+
   - name: golangci-lint
     image: golangci/golangci-lint:latest
     depends_on:
-      - clone
+      - statik
     environment:
       GOOS: js
       GOARCH: wasm
-      GOBIN: /usr/bin/
     commands:
-      # generate missed static package
-      - go install github.com/rakyll/statik
-      - statik -src=./include/ -dest=./wasm/
-      # run the linter
       - golangci-lint run ./wasm/
       - golangci-lint run ./server/
 
