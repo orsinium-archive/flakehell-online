@@ -44,12 +44,10 @@ func NewFlakeHell(win web.Window, doc web.Document, editor web.Value, py *Python
 }
 
 func (fh *FlakeHell) Register() {
-	fh.win.Console().Log("", "reg")
 	fh.btn.Set("disabled", false)
 
 	wrapped := func(this js.Value, args []js.Value) interface{} {
 		fh.btn.Set("disabled", true)
-		fh.win.Console().Log("", "oh hi")
 		fh.Run()
 		fh.Register()
 		return true

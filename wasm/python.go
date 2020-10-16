@@ -49,7 +49,7 @@ func (py Python) Install(pkg string) bool {
 		py.PrintErr(fail.String())
 		return false
 	}
-	py.PrintOut("True")
+	py.PrintOut(fmt.Sprint(pkg, " installed"))
 	return true
 }
 
