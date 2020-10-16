@@ -63,11 +63,7 @@ func main() {
 	py.Install("setuptools")
 	py.Install("entrypoints")
 	py.Install("flake8-builtins==1.5.3")
-	py.Install("wemake-python-styleguide==0.14.1")
-	py.Install("astroid")
-	py.Install("deal==4.0.1")
-	py.Install("pylint==2.6.0")
-	py.Install("flakehell==0.6.1")
+	py.Install("flakehell==0.7.0")
 
 	// install non-wheel dependencies
 	py.RunAndPrint("import sys")
@@ -78,17 +74,22 @@ func main() {
 		"/wrapt.zip",
 		"/typed_ast.zip",
 	}
+	extract := scripts.ReadExtract()
 	for _, name := range unzip {
 		archive := scripts.Read(name)
 		encoded := base64.StdEncoding.EncodeToString(archive)
 		py.Set("archive", encoded)
-		script := scripts.ReadExtract()
-		py.RunAndPrint(script)
+		py.RunAndPrint(extract)
 	}
 
+	installer := Installer{py: &py, doc: doc, win: window}
+	installer.Init()
+
 	flakehell := NewFlakeHell(window, doc, editor, &py)
-	flakehell.Run()
 	flakehell.Register()
+
+	py.Clear()
+	py.PrintOut("Ready!")
 
 	select {}
 }
