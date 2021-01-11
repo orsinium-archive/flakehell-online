@@ -1,3 +1,9 @@
+# THE PROJECT IS ARCHIVED
+
+Forks: https://github.com/orsinium/forks
+
+---
+
 # flakehell-online
 
 [flakehell.orsinium.dev](https://flakehell.orsinium.dev/) is online playground for [FlakeHell](https://github.com/life4/flakehell).
